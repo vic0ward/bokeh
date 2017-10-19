@@ -327,13 +327,14 @@ def test_Title():
     assert title.plot is None
     assert title.level == 'annotation'
     assert title.text is None
-    assert title.align == 'left'
     assert title.offset == 0
     assert title.text_font == 'helvetica'
     assert title.text_font_size == {'value': '10pt'}
     assert title.text_font_style == 'bold'
     assert title.text_color == '#444444'
     assert title.text_alpha == 1.0
+    assert title.text_align == 'left'
+    assert title.text_baseline == 'bottom'
     check_fill_properties(title, "background_", None, 1.0)
     check_line_properties(title, "border_", None, 1.0, 1.0)
     check_properties_existence(title, [
@@ -341,13 +342,15 @@ def test_Title():
         "visible",
         "level",
         "text",
-        "align",
         "offset",
         "text_font",
         "text_font_size",
         "text_font_style",
         "text_color",
         "text_alpha",
+        "text_align",
+        "text_baseline",
+        "text_line_height",
         "render_mode"],
         prefix('border_', LINE),
         prefix('background_', FILL))

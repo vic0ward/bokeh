@@ -6,17 +6,18 @@ from __future__ import absolute_import
 
 from six import string_types
 
-from ..core.enums import (AngleUnits, Dimension, FontStyle, LegendClickPolicy, LegendLocation,
-                          Orientation, RenderMode, SpatialUnits, TextAlign)
+from ..core.enums import (AngleUnits, Dimension, LegendClickPolicy, LegendLocation,
+                          Orientation, RenderMode, SpatialUnits)
 from ..core.has_props import abstract
-from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Datetime, Dict, DistanceSpec, Either,
-                               Enum, Float, FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
+from ..core.properties import (Angle, AngleSpec, Auto, Bool, Datetime, Dict, DistanceSpec, Either,
+                               Enum, Float, Include, Instance, Int, List, NumberSpec, Override,
                                Seq, String, StringSpec, Tuple, value)
 from ..core.property_mixins import FillProps, LineProps, TextProps
 from ..core.validation import error
 from ..core.validation.errors import BAD_COLUMN_NAME, NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
 from ..model import Model
 from ..util.serialization import convert_datetime_type
+from ..util.deprecation import deprecated
 
 from .formatters import BasicTickFormatter, TickFormatter
 from .mappers import ContinuousColorMapper
@@ -879,62 +880,13 @@ class Title(TextAnnotation):
     The text value to render.
     """)
 
-    align = Enum(TextAlign, default='left', help="""
-    Location to align the title text.
-
+    text_props = Include(TextProps, use_prefix=False, help="""
+    The %s for the title text.
     """)
 
-    offset = Float(default=0, help="""
-    Offset the text by a number of pixels (can be positive or negative). Shifts the text in
-    different directions based on the location of the title:
+    text_font_size = Override(default=value("10pt"))
 
-        * above: shifts title right
-        * right: shifts title down
-        * below: shifts title right
-        * left: shifts title up
-
-    """)
-
-    text_font = String(default="helvetica", help="""
-    Name of a font to use for rendering text, e.g., ``'times'``,
-    ``'helvetica'``.
-
-    """)
-
-    text_font_size = FontSizeSpec(default=value("10pt"))
-
-    text_font_style = Enum(FontStyle, default="bold", help="""
-    A style to use for rendering text.
-
-    Acceptable values are:
-
-    - ``'normal'`` normal text
-    - ``'italic'`` *italic text*
-    - ``'bold'`` **bold text**
-
-    """)
-
-    text_color = ColorSpec(default="#444444", help="""
-    A color to use to fill text with.
-
-    Acceptable values are:
-
-    - any of the 147 named `CSS colors`_, e.g ``'green'``, ``'indigo'``
-    - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
-    - a 3-tuple of integers (r,g,b) between 0 and 255
-    - a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
-
-    .. _CSS colors: http://www.w3schools.com/cssref/css_colornames.asp
-
-    """)
-
-    text_alpha = NumberSpec(default=1.0, help="""
-    An alpha value to use to fill text with.
-
-    Acceptable values are floating point numbers between 0 (transparent)
-    and 1 (opaque).
-
-    """)
+    text_font_style = Override(default="bold")
 
     background_props = Include(FillProps, use_prefix=True, help="""
     The %s values for the text bounding box.
@@ -947,6 +899,27 @@ class Title(TextAnnotation):
     """)
 
     border_line_color = Override(default=None)
+
+    offset = Float(default=0, help="""
+    Offset the text by a number of pixels (can be positive or negative). Shifts the text in
+    different directions based on the location of the title:
+
+        * above: shifts title right
+        * right: shifts title down
+        * below: shifts title right
+        * left: shifts title up
+
+    """)
+
+    @property
+    def align(self):
+        deprecated((0, 12, 10), "Title.align", "Title.text_align")
+        return self.text_align
+
+    @align.setter
+    def align(self, val):
+        deprecated((0, 12, 10), "Title.align", "Title.text_align")
+        self.text_align = val
 
     render_mode = Enum(RenderMode, default="canvas", help="""
     Specifies whether the text is rendered as a canvas element or as an
